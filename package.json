@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win portable --x64 --publish never"
+    "dist:win": "electron-builder --win nsis portable --x64 --publish never"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",
@@ -24,7 +24,20 @@
     "appId": "ir.taqrir.editor",
     "productName": "TaqrirEditor",
     "files": ["main.js", "index.html", "package.json"],
-    "artifactName": "TaqrirEditor-${version}.${ext}",
-    "win": { "target": [{ "target": "portable", "arch": ["x64"] }] }
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "TaqrirEditor-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "TaqrirEditor-Portable-${version}.${ext}"
+    }
   }
 }
