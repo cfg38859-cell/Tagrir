@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Taqrir Editor",
   "author": "Taqrir",
-  "main": "electron/main.js",
+  "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist:win": "electron-builder --win portable --x64 --publish never"
@@ -23,7 +23,7 @@
   "build": {
     "appId": "ir.taqrir.editor",
     "productName": "TaqrirEditor",
-    "files": ["electron/**", "www/**", "package.json"],
+    "files": ["main.js", "index.html", "package.json"],
     "artifactName": "TaqrirEditor-${version}.${ext}",
     "win": { "target": [{ "target": "portable", "arch": ["x64"] }] }
   }
