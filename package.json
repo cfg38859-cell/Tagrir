@@ -1,0 +1,30 @@
+{
+  "name": "taqrir-editor",
+  "version": "1.0.0",
+  "description": "Taqrir Editor",
+  "author": "Taqrir",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win portable --x64 --publish never"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/browser": "^6.0.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/share": "^6.0.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "ir.taqrir.editor",
+    "productName": "TaqrirEditor",
+    "files": ["electron/**", "www/**", "package.json"],
+    "artifactName": "TaqrirEditor-${version}.${ext}",
+    "win": { "target": [{ "target": "portable", "arch": ["x64"] }] }
+  }
+}
