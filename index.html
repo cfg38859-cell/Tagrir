@@ -61,7 +61,7 @@ dialog h3{margin:0 0 12px}.gr{display:grid;grid-template-columns:1fr 1fr;gap:10p
  <button id="bx" class="pri">⬇ <span class="tx">خروجی</span></button></div>
 <nav id="tb"><button id="bu"><span class="ic">↶</span>بازگشت</button><button id="br"><span class="ic">↷</span>جلو</button><button id="bc"><span class="ic">🎨</span>رنگ‌ها</button><button id="bf"><span class="ic">Aa</span>قالب متن</button><button id="bn"><span class="ic">✎</span>پاورقی</button><button id="bh"><span class="ic">▤</span>هدینگ</button></nav>
 <div class="wrap"><div id="pg"><div id="hd" hidden></div><div id="ed" contenteditable="true" spellcheck="false" dir="rtl"><p><br></p></div><div id="pf"></div></div>
- <aside id="fa"><h2>پاورقی‌ها</h2><ol id="fl"></ol><div id="fe" style="color:var(--mut);font-size:13px">هنوز پاورقی‌ای نیست.</div></aside></div>
+ <aside id="fa"><h2>پاورقی‌ها <button id="fca" style="padding:2px 8px;font-size:12px;margin-inline-start:6px">📋 کپی همه</button></h2><ol id="fl"></ol><div id="fe" style="color:var(--mut);font-size:13px">هنوز پاورقی‌ای نیست.</div></aside></div>
 <div id="pop" hidden></div><div id="st" role="status"></div>
 <dialog id="dh"><h3>هدینگ تقریر</h3><div class="gr" id="fm"></div><div class="fr"><button class="pri" id="ha">افزودن هدینگ</button><button id="hr">حذف هدینگ</button><button id="hc">بستن</button></div></dialog>
 <dialog id="df"><h3>درج پاورقی</h3><div class="gr">
@@ -69,7 +69,7 @@ dialog h3{margin:0 0 12px}.gr{display:grid;grid-template-columns:1fr 1fr;gap:10p
  <label>شناسه کتاب در کتابخانه<input id="fid" inputmode="numeric" dir="ltr"></label><label>کلمه کلیدی<input id="fk"></label>
  <label>جلد<input id="fv" inputmode="numeric"></label><label>صفحه<input id="fp" inputmode="numeric"></label>
  <label class="w">متن پاورقی<textarea id="ft" rows="2"></textarea></label><label class="w">لینک<input id="fu" dir="ltr" placeholder="https://lib.eshia.ir/…"></label></div>
- <div class="fr"><button class="pri" id="fo">تأیید</button><button id="fw">مشاهده لینک در کتابخانه</button><button id="fd">حذف</button><button id="fx">لغو</button></div></dialog>
+ <div class="fr"><button class="pri" id="fo">تأیید</button><button id="fc">📋 کپی</button><button id="fw">مشاهده لینک در کتابخانه</button><button id="fd">حذف</button><button id="fx">لغو</button></div></dialog>
 <script>
 
 const $=s=>document.querySelector(s),ed=$('#ed'),pd=e=>e.preventDefault();
@@ -98,6 +98,83 @@ function setHdr(t){const m=re=>(t.match(re)||[])[1],set=(k,v)=>{if(v!=null)$('#f
  set('n',m(/شماره جلسه\s*:\s*(\d+)/));set('dt',m(/تاریخ\s*:\s*([\d\/]+)/));const dy=(m(/تاریخ\s*:\s*[\d\/]+\s*-\s*(\S+?)(?=مقرر|$)/)||'').trim();if(DAYS.includes(dy))$('#f_dy').value=dy;
  const dr=t.match(/درس\s+(خارج\s+\S+)\s*(.*?)\s*تاریخ/);if(dr){set('cr',dr[1]);set('pr',dr[2])}
  set('rp',m(/مقرر\s*:\s*(.*?)\s*موضوع عام/));set('g1',m(/موضوع عام\s*:\s*(.*?)\s*موضوع خاص/));set('g2',m(/موضوع خاص\s*:\s*(.*?)\s*موضوع اخص/));set('g3',m(/موضوع اخص\s*:\s*(.*)$/))}
+$('#bu').onclick=()=>ex('undo');$('#br').onclick=()=>ex('redo');
+$('#bh').onclick=()=>{closeP();$('#dh').showModal()};
+$('#ha').onclick=()=>{hon=true;hdr();$('#dh').close();st('هدینگ افزوده شد')};
+$('#hr').onclick=()=>{hon=false;hdr();$('#dh').close()};$('#hc').onclick=()=>$('#dh').close();
+// ---- selection / popovers ----
+let lr=null,pb=null;
+document.addEventListener('selectionchange',()=>{const s=getSelection();if(s.rangeCount&&ed.contains(s.anchorNode))lr=s.getRangeAt(0).cloneRange()});
+const rs=()=>{ed.focus();if(lr){const s=getSelection();s.removeAllRanges();s.addRange(lr)}};
+document.execCommand('styleWithCSS',false,true);
+const ex=(c,v)=>{rs();document.execCommand(c,false,v);rf()};
+function closeP(){$('#pop').hidden=true;pb=null;document.querySelectorAll('#tb .on').forEach(e=>e.classList.remove('on'))}
+function pop(b,h){const P=$('#pop');if(pb==b&&!P.hidden){closeP();return P}closeP();P.innerHTML=h;P.hidden=false;pb=b;b.classList.add('on');
+ P.style.top=$('#tb').getBoundingClientRect().bottom+(innerWidth>800?6:0)+'px';if(innerWidth>800){const r=b.getBoundingClientRect();P.style.left=Math.max(8,Math.min(r.left,innerWidth-P.offsetWidth-8))+'px'}return P}
+document.addEventListener('mousedown',e=>{if(!e.target.closest('#pop,#tb,#bx'))closeP()});
+$('#tb').addEventListener('mousedown',pd);
+$('#pop').addEventListener('mousedown',e=>{if(!/SELECT|INPUT|OPTION/.test(e.target.tagName))pd(e)});
+function wrapV(){const s=getSelection();if(!s.rangeCount||s.isCollapsed)return;const f=s.getRangeAt(0).cloneContents();if(f.querySelector('sup.fn,p,div,br'))return;const t=s.toString();if(/^\s*\ufd3f/.test(t))return;
+ document.execCommand('insertText',false,'\ufd3f'+t+'\ufd3e');for(let i=0;i<t.length+2;i++)s.modify('extend','backward','character');lr=s.getRangeAt(0).cloneRange()}
+$('#bc').onclick=e=>{const P=pop(e.currentTarget,'<div class="sg">'+COL.map((c,i)=>`<button data-i="${i}"><i style="background:${c[1]}"></i>${c[0]}</button>`).join('')+'</div>');
+ P.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;const c=COL[b.dataset.i];rs();if(c[3]=='v')wrapV();if(c[2]=='hl')ex('hiliteColor',c[1]);else{if(b.dataset.i==0)document.execCommand('hiliteColor',false,'transparent');ex('foreColor',c[2]||c[1])}closeP()}};
+$('#bf').onclick=e=>{const P=pop(e.currentTarget,`<div class="gr"><label>فونت<select id="pfn">${['Traditional Arabic','B Nazanin','B Lotus','Times New Roman','Arial','Tahoma'].map(f=>`<option>${f}</option>`).join('')}</select></label><label>اندازه<select id="psz">${[10,12,13,14,16,18,20,22,24,28].map(s=>`<option ${s==17?'selected':''}>${s}</option>`).join('')}</select></label></div>
+ <div class="fr"><button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button></div>
+ <div class="fr"><button data-c="justifyFull">تراز</button><button data-c="justifyCenter">وسط</button><button data-c="justifyRight">راست</button><button data-c="justifyLeft">چپ</button></div>
+ <div class="fr"><button data-c="removeFormat">پاک‌سازی</button></div>`);
+ P.onclick=ev=>{const b=ev.target.closest('[data-c]');if(b)ex(b.dataset.c)};
+ P.onchange=ev=>{if(ev.target.id=='pfn')ex('fontName',ev.target.value);else{rs();document.execCommand('styleWithCSS',false,false);document.execCommand('fontSize',false,7);document.execCommand('styleWithCSS',false,true);
+  ed.querySelectorAll('font[size="7"]').forEach(f=>{const s=document.createElement('span');s.style.fontSize=ev.target.value+'pt';s.innerHTML=f.innerHTML;f.replaceWith(s)});rf()}}};
+// ---- footnotes ----
+const BK={'وسائل الشیعه':['11025','وسائل الشيعة، الشيخ الحر العاملي'],'من لا یحضره الفقیه':['11021','من لا يحضره الفقيه، الشيخ الصدوق'],'نهج البلاغه':['12092','نهج البلاغه، صبحي صالح']};
+$('#bk').innerHTML=Object.keys(BK).map(k=>`<option value="${k}">`).join('');
+let cur=null;
+function auto(ev){const b=$('#fb').value.trim(),k=BK[b];if(k&&ev.target.id=='fb')$('#fid').value=k[0];const nm=k?k[1]:b,v=$('#fv').value.trim(),p=$('#fp').value.trim(),id=$('#fid').value.trim(),w=$('#fk').value.trim();
+ $('#ft').value=nm?nm+(v?'، ج'+v:'')+(p?'، ص'+p:'')+'.':'';$('#fu').value=id?`https://lib.eshia.ir/${id}/${v||1}/${p||1}${w?'/'+w:''}`:''}
+['fb','fid','fk','fv','fp'].forEach(i=>$('#'+i).oninput=auto);
+function openF(s){closeP();cur=s||null;['fb','fid','fk','fv','fp'].forEach(i=>$('#'+i).value='');$('#ft').value=s?s.dataset.t:'';$('#fu').value=s?s.dataset.u:'';$('#fd').hidden=!s;$('#df').showModal()}
+$('#bn').onclick=()=>openF(null);
+ed.addEventListener('click',e=>{const s=e.target.closest('sup.fn');if(s)openF(s)});
+const copyTxt=async t=>{try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.append(a);a.select();try{document.execCommand('copy')}catch(_){}a.remove()}st('کپی شد ✓')};
+$('#fc').onclick=()=>{const t=$('#ft').value.trim();t?copyTxt(t):st('متنی برای کپی نیست')};
+$('#fca').onclick=()=>{const a=notes();a.length?copyTxt(a.map(n=>n.n+'. '+n.t).join('\n')):st('پاورقی‌ای وجود ندارد')};
+$('#fx').onclick=()=>$('#df').close();
+$('#fw').onclick=()=>{const u=$('#fu').value.trim();if(u)openLink(u);else st('ابتدا کتاب، جلد و صفحه را وارد کنید')};
+$('#fd').onclick=()=>{if(cur)cur.remove();$('#df').close();rf()};
+$('#fo').onclick=()=>{const t=$('#ft').value.trim(),u=$('#fu').value.trim();$('#df').close();
+ if(cur){cur.dataset.t=t;cur.dataset.u=u}else{rs();document.execCommand('insertHTML',false,`<sup class="fn" contenteditable="false" data-t="${esc(t)}" data-u="${esc(u)}">0</sup>&#8203;`)}rf()};
+function rf(){const L=$('#fl'),a=[...ed.querySelectorAll('sup.fn')];L.innerHTML='';$('#fe').hidden=a.length>0;
+ a.forEach((s,i)=>{s.textContent=i+1;const li=document.createElement('li');li.innerHTML=`<b>${i+1}</b><span>${esc(s.dataset.t||'(بدون متن)')}${s.dataset.u?` <a href="${esc(s.dataset.u)}" target="_blank" onclick="event.stopPropagation()">🔗</a>`:''}</span>`;li.onclick=()=>openF(s);const cb=document.createElement('button');cb.textContent='📋';cb.title='کپی';cb.style.cssText='padding:2px 6px;border-radius:6px;flex:none';cb.onclick=e=>{e.stopPropagation();copyTxt(s.dataset.t||'')};li.append(cb);L.append(li)});sv.q()}
+ed.addEventListener('input',rf);
+ed.addEventListener('paste',e=>{e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain'))});
+$('#nw').onclick=()=>{if(confirm('متن فعلی پاک شود؟')){ed.innerHTML='<p><br></p>';rf()}};
+const LB=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258],LE=[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0],DB=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577],DE=[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+function inflate(s){let p=0,bt=0,bc=0;const o=[];
+ const bit=()=>{if(!bc){bt=s[p++];bc=8}const b=bt&1;bt>>=1;bc--;return b},bits=n=>{let v=0;for(let i=0;i<n;i++)v|=bit()<<i;return v};
+ const build=l=>{const c=new Array(16).fill(0);l.forEach(x=>c[x]++);c[0]=0;const f=[0,0],sy=[];for(let i=1;i<15;i++)f[i+1]=f[i]+c[i];l.forEach((x,i)=>{if(x)sy[f[x]++]=i});return{c,sy}};
+ const dec=t=>{let code=0,first=0,idx=0;for(let l=1;l<16;l++){code|=bit();const n=t.c[l];if(code-n<first)return t.sy[idx+(code-first)];idx+=n;first=(first+n)<<1;code<<=1}throw new Error('inflate')};
+ let fin;do{fin=bit();const ty=bits(2);
+  if(!ty){bc=0;const n=s[p]|s[p+1]<<8;p+=4;for(let i=0;i<n;i++)o.push(s[p++])}
+  else{let lt,dt;if(ty==1){const l=[];for(let i=0;i<288;i++)l[i]=i<144?8:i<256?9:i<280?7:8;lt=build(l);dt=build(new Array(30).fill(5))}
+   else{const hl=bits(5)+257,hd=bits(5)+1,hc=bits(4)+4,OR=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15],cl=new Array(19).fill(0);for(let i=0;i<hc;i++)cl[OR[i]]=bits(3);
+    const ct=build(cl),ls=[];while(ls.length<hl+hd){const y=dec(ct);if(y<16)ls.push(y);else{let r,v=0;if(y==16){v=ls[ls.length-1];r=3+bits(2)}else if(y==17)r=3+bits(3);else r=11+bits(7);while(r--)ls.push(v)}}
+    lt=build(ls.slice(0,hl));dt=build(ls.slice(hl))}
+   for(;;){const y=dec(lt);if(y<256)o.push(y);else if(y==256)break;else{const k=y-257,len=LB[k]+bits(LE[k]),d=dec(dt),dist=DB[d]+bits(DE[d]);for(let i=0;i<len;i++)o.push(o[o.length-dist])}}}
+ }while(!fin);return new Uint8Array(o)}
+const infl=async d=>{try{return new Uint8Array(await new Response(new Blob([d]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}catch(e){return inflate(d)}};
+async function unzip(buf){const v=new DataView(buf),u=new Uint8Array(buf),o={};let e=u.length-22;while(v.getUint32(e,true)!=0x06054b50)e--;
+ const n=v.getUint16(e+10,true);let p=v.getUint32(e+16,true);
+ for(let i=0;i<n;i++){const m=v.getUint16(p+10,true),cs=v.getUint32(p+20,true),nl=v.getUint16(p+28,true),xl=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),lo=v.getUint32(p+42,true);
+  const nm=new TextDecoder().decode(u.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
+  const s=lo+30+v.getUint16(lo+26,true)+v.getUint16(lo+28,true);let d=u.subarray(s,s+cs);
+  if(m==8)d=await infl(d);
+  o[nm]=d}return o}
+const T=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc=d=>{let c=-1;for(let i=0;i<d.length;i++)c=T[(c^d[i])&255]^(c>>>8);return(c^-1)>>>0};
+function zip(fs){const E=new TextEncoder(),P=[],C=[];let off=0,cs=0,n=0;
+ for(const[nm,t]of Object.entries(fs)){const nb=E.encode(nm),d=E.encode(t),c=crc(d),h=new DataView(new ArrayBuffer(30)),g=new DataView(new ArrayBuffer(46));
+  h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x800,true);h.setUint32(14,c,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nb.length,true);
+'g1',m(/موضوع عام\s*:\s*(.*?)\s*موضوع خاص/));set('g2',m(/موضوع خاص\s*:\s*(.*?)\s*موضوع اخص/));set('g3',m(/موضوع اخص\s*:\s*(.*)$/))}
 $('#bu').onclick=()=>ex('undo');$('#br').onclick=()=>ex('redo');
 $('#bh').onclick=()=>{closeP();$('#dh').showModal()};
 $('#ha').onclick=()=>{hon=true;hdr();$('#dh').close();st('هدینگ افزوده شد')};
